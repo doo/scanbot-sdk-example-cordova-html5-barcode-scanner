@@ -16,12 +16,22 @@ const TRIAL_LICENSE_KEY =
     "IKMg==\n";
 
 const app = {
+
+    camera: null,
+
     initialize: function() {
         document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
     },
 
     onDeviceReady: function() {
+        this.initUi();
         this.initScanbotSdk();
+    },
+
+    initUi: function() {
+        document.getElementById('dispose-camera-btn').onclick = () => {
+            this.camera.dispose();
+        };
     },
 
     initScanbotSdk: function() {
@@ -48,8 +58,18 @@ const app = {
         const resultEl = document.getElementById('barcode-result');
         const containerEl = document.getElementById('barcode-scanner-container');
         const barcodeTypes = []; // ['AZTEC', 'DATA_MATRIX'];
-        const camera = await ScanbotHTMLCamera.create(containerEl);
-        camera.startBarcodeDetector(barcodeTypes, async result => {
+        this.camera = await ScanbotHTMLCamera.create(containerEl);
+
+        // define optional finder view
+        this.camera.addViewFinder({
+            // backgroundColor: "blue",
+            width: 300,
+            height: 100,
+            // border: "5px solid red",
+            // borderRadius: 0
+        });
+
+        this.camera.startBarcodeDetector(barcodeTypes, async result => {
             resultEl.innerHTML = '';
             if (result.barcodes && result.barcodes.length > 0) {
                 // The scan result can contain multiple barcodes,
